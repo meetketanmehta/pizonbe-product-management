@@ -1,0 +1,20 @@
+service: product-management
+
+custom:
+  secrets: ${file(secrets.json)}
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${self:custom.secrets.APP_ENV_DEV}
+  environment:
+    DB_URI: ${self:custom.secrets.DB_URI}
+
+functions:
+  addCategory:
+    handler: functions/category-manager.addCategory
+    events:
+      - http:
+          path: addCategory
+          method: post
+          cors: true
