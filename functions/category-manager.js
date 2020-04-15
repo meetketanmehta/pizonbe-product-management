@@ -1,9 +1,37 @@
+'use strict';
+
 const MongoClient = require('mongodb').MongoClient;
 const responseGenerator = require('../utils/response-generator');
 
 const uri = process.env.DB_URI;
 
 const mongoClient = new MongoClient(uri);
+
+module.exports.getAllCategories = async (event, context) => {
+    try {
+        await mongoClient.connect();
+        const collection = await mongoClient.db(process.env.DB_NAME).collection(process.env.DB_COLL_CATEGORY);
+        const projectionObject = {"category": 1, _id:0};
+        const values = await collection.find({}).project(projectionObject).toArray();
+        return responseGenerator.getResponseWithArray(200, values);
+    } catch (err) {
+        console.log(err.message);
+        return responseGenerator.getResponseWithMessage(500, "Internal Server Error");
+    }
+};
+
+module.exports.getAllDB = async (event, context) => {
+    try{
+        await mongoClient.connect();
+        const collection = await mongoClient.db(process.env.DB_NAME).collection(process.env.DB_COLL_CATEGORY);
+        const projectionObject = {_id:0};
+        const values = await collection.find({}).project(projectionObject).toArray();
+        return responseGenerator.getResponseWithArray(200, values);
+    } catch (err) {
+        console.error(err.message);
+        return responseGenerator.getResponseWithMessage(500, "Internal Server Error");
+    }
+}
 
 module.exports.addCategory = function (event, context, callback) {
     context.callbackWaitsForEmptyEventLoop = false;
@@ -16,13 +44,14 @@ module.exports.addCategory = function (event, context, callback) {
             return callback(null, response);
         }
         console.log("Connected to database");
-        const dbObject = mongoClient.db("product-management");
-        const collection = dbObject.collection("categories");
+        const dbObject = mongoClient.db(process.env.DB_NAME);
+        const collection = dbObject.collection(process.env.DB_COLL_CATEGORY);
         const queryObject = {
-            "name": category
+            "category": category
         };
         const projectionObject = {
-            "name" : 1
+            _id: 0,
+            "category" : 1
         };
         collection.find(queryObject, projectionObject).toArray(function (err, res) {
             if(err){

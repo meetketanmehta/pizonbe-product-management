@@ -1,6 +1,6 @@
-exports.getResponseWithMessage = function (errorCode, message) {
+exports.getResponseWithMessage = function (statusCode, message) {
     return {
-        statusCode: errorCode,
+        statusCode: statusCode,
         headers: {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Credentials': true,
@@ -8,5 +8,16 @@ exports.getResponseWithMessage = function (errorCode, message) {
         body: JSON.stringify({
             message: message
         })
-    }
-}
+    };
+};
+
+exports.getResponseWithArray = function (statusCode, values) {
+    return {
+        statusCode: statusCode,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': true,
+        },
+        body: JSON.stringify(values)
+    };
+};

@@ -9,6 +9,8 @@ provider:
   stage: ${self:custom.secrets.APP_ENV_DEV}
   environment:
     DB_URI: ${self:custom.secrets.DB_URI}
+    DB_NAME: ${self:custom.secrets.DB_NAME}
+    DB_COLL_CATEGORY: ${self:custom.secrets.DB_COLL_CATEGORY}
 
 functions:
   addCategory:
@@ -17,4 +19,18 @@ functions:
       - http:
           path: addCategory
           method: post
+          cors: true
+  getAllCategories:
+    handler: functions/category-manager.getAllCategories
+    events:
+      - http:
+          path: getAllCategories
+          method: get
+          cors: true
+  getAllDB:
+    handler: functions/category-manager.getAllDB
+    events:
+      - http:
+          path: getAllDB
+          method: get
           cors: true
