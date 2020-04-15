@@ -13,13 +13,6 @@ provider:
     DB_COLL_CATEGORY: ${self:custom.secrets.DB_COLL_CATEGORY}
 
 functions:
-  addCategory:
-    handler: functions/category-manager.addCategory
-    events:
-      - http:
-          path: addCategory
-          method: post
-          cors: true
   getAllCategories:
     handler: functions/category-manager.getAllCategories
     events:
@@ -33,4 +26,25 @@ functions:
       - http:
           path: getAllDB
           method: get
+          cors: true
+  getSubCategory:
+    handler: functions/category-manager.getSubCategory
+    events:
+      - http:
+          path: getSubCategory/{category}
+          method: get
+          cors: true
+  addSubCategory:
+    handler: functions/category-manager.addSubCategory
+    events:
+      - http:
+          path: addSubCategory
+          method: post
+          cors: true
+  addCategory:
+    handler: functions/category-manager.addCategory
+    events:
+      - http:
+          path: addCategory
+          method: post
           cors: true

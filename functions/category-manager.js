@@ -23,10 +23,63 @@ module.exports.getAllCategories = async (event, context) => {
 module.exports.getAllDB = async (event, context) => {
     try{
         await mongoClient.connect();
+        console.log("Connected to DB");
         const collection = await mongoClient.db(process.env.DB_NAME).collection(process.env.DB_COLL_CATEGORY);
+        console.log("Got collection " + process.env.DB_COLL_CATEGORY);
         const projectionObject = {_id:0};
         const values = await collection.find({}).project(projectionObject).toArray();
         return responseGenerator.getResponseWithArray(200, values);
+    } catch (err) {
+        console.error(err.message);
+        return responseGenerator.getResponseWithMessage(500, "Internal Server Error");
+    }
+}
+
+module.exports.getSubCategory = async (event, context) => {
+    try{
+        await mongoClient.connect();
+        console.log("Connected to DB");
+        const collection = await mongoClient.db(process.env.DB_NAME).collection(process.env.DB_COLL_CATEGORY);
+        console.log("Got collection " + process.env.DB_COLL_CATEGORY);
+        const category = event.pathParameters.category;
+        const queryObject = {
+            category: category
+        };
+        const projectionObject = {
+            _id:0,
+        };
+        const values = await collection.find(queryObject).project(projectionObject).toArray();
+        return responseGenerator.getResponseWithArray(200, values);
+    } catch (err) {
+        console.error(err.message);
+        return responseGenerator.getResponseWithMessage(500, "Internal Server Error");
+    }
+}
+
+module.exports.addSubCategory = async (event, context) => {
+    try{
+        const requestBody = JSON.parse(event.body);
+        await mongoClient.connect();
+        console.log("Connected to DB");
+        const collection = await mongoClient.db(process.env.DB_NAME).collection(process.env.DB_COLL_CATEGORY);
+        console.log("Get collection" + process.env.DB_COLL_CATEGORY);
+        const category = requestBody.category;
+        const subCategories = requestBody.subCat;
+        const queryObject = {
+            category: category
+        };
+        const values = await collection.find(queryObject).toArray();
+        if(values.length === 0)
+            return responseGenerator.getResponseWithMessage(400, "Category not found in dB");
+        const newValueObject = {
+            $addToSet: {
+                subCat: {
+                    $each: subCategories
+                }
+            }
+        }
+        const res = await collection.update(queryObject, newValueObject);
+        return responseGenerator.getResponseWithMessage(200, "SubCategories added Successfully");
     } catch (err) {
         console.error(err.message);
         return responseGenerator.getResponseWithMessage(500, "Internal Server Error");
