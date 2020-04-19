@@ -65,3 +65,18 @@ functions:
           path: approveProduct
           method: post
           cors: true
+  getProducts:
+    handler: functions/product-manager.getProducts
+    events:
+      - http:
+          path: getProducts
+          method: get
+          cors: true
+      - http:
+          path: getProducts/{category}
+          method: get
+          cors: true
+      - http:
+          path: getProducts/{category}/{subCategory}
+          method: get
+          cors: true

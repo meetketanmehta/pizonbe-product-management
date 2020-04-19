@@ -45,3 +45,24 @@ module.exports.approveProduct = async function (event, context) {
         return ResponseGenerator.getResponseWithMessage(400, err.message);
     }
 }
+
+module.exports.getProducts = async function (event, context) {
+    try {
+        const decodedUser = await jwt.verify(event.headers.authorizationToken, process.env.JWT_SECRET);
+        await mongoose.connect(url);
+        var queryObj = {
+            "approval.status": "Approved"
+        };
+        if(event.pathParameters) {
+            if(event.pathParameters.category)
+                queryObj["category"] = decodeURI(event.pathParameters.category);
+            if(event.pathParameters.subCategory)
+                queryObj["subCategory"] = decodeURI(event.pathParameters.subCategory);
+        }
+        var products = await Product.find(queryObj);
+        return ResponseGenerator.getResponseWithObject(200, products);
+    } catch (err) {
+        console.error(err);
+        return ResponseGenerator.getResponseWithMessage(400, err.message);
+    }
+}
