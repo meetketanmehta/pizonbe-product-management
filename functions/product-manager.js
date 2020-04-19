@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const ResponseGenerator = require('../utils/response-generator');
 const Product = require('../models/Product');
 const jwt = require('jsonwebtoken');
+const Validator = require('../utils/authorizer');
 
 const url =  process.env.DB_URI + "/" + process.env.DB_NAME;
 
@@ -53,6 +54,31 @@ module.exports.getProducts = async function (event, context) {
         var queryObj = {
             "approval.status": "Approved"
         };
+        if(event.pathParameters) {
+            if(event.pathParameters.category)
+                queryObj["category"] = decodeURI(event.pathParameters.category);
+            if(event.pathParameters.subCategory)
+                queryObj["subCategory"] = decodeURI(event.pathParameters.subCategory);
+        }
+        var products = await Product.find(queryObj);
+        return ResponseGenerator.getResponseWithObject(200, products);
+    } catch (err) {
+        console.error(err);
+        return ResponseGenerator.getResponseWithMessage(400, err.message);
+    }
+}
+
+module.exports.getUnApprovedProducts = async function (event, context) {
+    try {
+        const decodedUser = await jwt.verify(event.headers.authorizationToken, process.env.JWT_SECRET);
+        const hasRights = Validator.checkIfIncludes(decodedUser, ['admin']);
+        if(!hasRights) {
+            return ResponseGenerator.getUnauthorizedResponse();
+        }
+        await mongoose.connect(url);
+        const queryObj = {
+            "approval.status": "Not Approved"
+        }
         if(event.pathParameters) {
             if(event.pathParameters.category)
                 queryObj["category"] = decodeURI(event.pathParameters.category);

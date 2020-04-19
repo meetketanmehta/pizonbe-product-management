@@ -21,3 +21,16 @@ exports.getResponseWithObject = function (statusCode, values) {
         body: JSON.stringify(values)
     };
 };
+
+exports.getUnauthorizedResponse = function () {
+    return {
+        statusCode: 400,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': true
+        },
+        body: JSON.stringify({
+            message: "Access Denied"
+        })
+    }
+}

@@ -80,3 +80,18 @@ functions:
           path: getProducts/{category}/{subCategory}
           method: get
           cors: true
+  getUnApprovedProducts:
+    handler: functions/product-manager.getUnApprovedProducts
+    events:
+      - http:
+          path: getUnApprovedProducts
+          method: get
+          cors: true
+      - http:
+          path: getUnApprovedProducts/{category}
+          method: get
+          cors: true
+      - http:
+          path: getUnApprovedProducts/{category}/{subCategory}
+          method: get
+          cors: true
