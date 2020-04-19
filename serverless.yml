@@ -11,6 +11,8 @@ provider:
     DB_URI: ${self:custom.secrets.DB_URI}
     DB_NAME: ${self:custom.secrets.DB_NAME}
     DB_COLL_CATEGORY: ${self:custom.secrets.DB_COLL_CATEGORY}
+    DB_PRODUCTS_COLLECTION: ${self:custom.secrets.DB_PRODUCTS_COLLECTION}
+    JWT_SECRET: ${self:custom.secrets.JWT_SECRET}
 
 functions:
   getAllCategories:
@@ -46,5 +48,13 @@ functions:
     events:
       - http:
           path: addCategory
+          method: post
+          cors: true
+
+  addProduct:
+    handler: functions/product-manager.addProduct
+    events:
+      - http:
+          path: addProduct
           method: post
           cors: true

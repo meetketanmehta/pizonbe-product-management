@@ -11,7 +11,7 @@ exports.getResponseWithMessage = function (statusCode, message) {
     };
 };
 
-exports.getResponseWithArray = function (statusCode, values) {
+exports.getResponseWithObject = function (statusCode, values) {
     return {
         statusCode: statusCode,
         headers: {

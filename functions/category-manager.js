@@ -13,7 +13,7 @@ module.exports.getAllCategories = async (event, context) => {
         const collection = await mongoClient.db(process.env.DB_NAME).collection(process.env.DB_COLL_CATEGORY);
         const projectionObject = {"category": 1, _id:0};
         const values = await collection.find({}).project(projectionObject).toArray();
-        return responseGenerator.getResponseWithArray(200, values);
+        return responseGenerator.getResponseWithObject(200, values);
     } catch (err) {
         console.log(err.message);
         return responseGenerator.getResponseWithMessage(500, "Internal Server Error");
@@ -28,7 +28,7 @@ module.exports.getAllDB = async (event, context) => {
         console.log("Got collection " + process.env.DB_COLL_CATEGORY);
         const projectionObject = {_id:0};
         const values = await collection.find({}).project(projectionObject).toArray();
-        return responseGenerator.getResponseWithArray(200, values);
+        return responseGenerator.getResponseWithObject(200, values);
     } catch (err) {
         console.error(err.message);
         return responseGenerator.getResponseWithMessage(500, "Internal Server Error");
@@ -49,7 +49,7 @@ module.exports.getSubCategory = async (event, context) => {
             _id:0,
         };
         const values = await collection.find(queryObject).project(projectionObject).toArray();
-        return responseGenerator.getResponseWithArray(200, values);
+        return responseGenerator.getResponseWithObject(200, values);
     } catch (err) {
         console.error(err.message);
         return responseGenerator.getResponseWithMessage(500, "Internal Server Error");
@@ -129,4 +129,21 @@ module.exports.addCategory = function (event, context, callback) {
             });
         });
     });
+}
+
+module.exports.checkCatAndSub = async function (category, subCategory) {
+    await mongoClient.connect();
+    const collection = await mongoClient.db(process.env.DB_NAME).collection(process.env.DB_COLL_CATEGORY);
+    const queryObj = {
+        category: category,
+        subCat: {
+            $all: [
+                {
+                    subCategory: subCategory
+                }
+            ]
+        }
+    };
+    const catDocument = await collection.findOne(queryObj);
+    return catDocument !== null;
 }
