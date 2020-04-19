@@ -48,24 +48,34 @@ productSchema.methods.matchCatAndSub = async function () {
     return await CategoryManager.checkCatAndSub(product.category, product.subCategory);
 }
 
-productSchema.methods.addAttributes = async function(user) {
+productSchema.methods.addApproval = async function(user) {
     var product = this;
     if(user.userType === 'store') {
-        product['storeIds'] = [
-            user.userId
-        ];
         product['approval'] = {
             status: "Not Approved"
         };
-        return;
     }
     if(user.userType === 'admin') {
         product['approval'] = {
             status: "Approved",
             approvedBy: user.userId
         };
-        return;
     }
+}
+
+productSchema.methods.updateProduct = async function (request) {
+    if(request.hasOwnProperty('title'))
+        this.title = request.title;
+    if(request.hasOwnProperty('description'))
+        this.description = request.description;
+    if(request.hasOwnProperty('category')){
+        this.category = request.category;
+        this.subCategory = request.subCategory;
+    }
+    if(request.hasOwnProperty('imageUri'))
+        this.imageUri = request.imageUri;
+    if(request.hasOwnProperty('options'))
+        this.options = request.options;
 }
 
 var Product = mongoose.model('Product', productSchema, process.env.DB_PRODUCTS_COLLECTION);

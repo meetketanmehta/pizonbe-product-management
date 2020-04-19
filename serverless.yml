@@ -58,3 +58,10 @@ functions:
           path: addProduct
           method: post
           cors: true
+  approveProduct:
+    handler: functions/product-manager.approveProduct
+    events:
+      - http:
+          path: approveProduct
+          method: post
+          cors: true
