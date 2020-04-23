@@ -12,7 +12,9 @@ provider:
     DB_NAME: ${self:custom.secrets.DB_NAME}
     DB_COLL_CATEGORY: ${self:custom.secrets.DB_COLL_CATEGORY}
     DB_PRODUCTS_COLLECTION: ${self:custom.secrets.DB_PRODUCTS_COLLECTION}
+    DB_PRODUCTS_PRICE_COLLECTION: ${self:custom.secrets.DB_PRODUCTS_PRICE_COLLECTION}
     JWT_SECRET: ${self:custom.secrets.JWT_SECRET}
+
 
 functions:
   getAllCategories:
@@ -95,3 +97,15 @@ functions:
           path: getUnApprovedProducts/{category}/{subCategory}
           method: get
           cors: true
+
+  addPrice:
+    handler: functions/price-manager.addPrice
+    events:
+      - http:
+          path: addPrice
+          method: post
+          cors: true
+
+plugins:
+  - serverless-mocha-plugin
+  - serverless-offline
