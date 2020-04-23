@@ -105,6 +105,13 @@ functions:
           path: addPrice
           method: post
           cors: true
+  getPrice:
+    handler: functions/price-manager.getPrice
+    events:
+      - http:
+          path: getPrice/{proId}
+          method: get
+          cors: true
 
 plugins:
   - serverless-mocha-plugin

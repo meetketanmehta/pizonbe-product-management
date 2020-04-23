@@ -12,6 +12,10 @@ module.exports.storeToken = function() {
     }
 }
 
+module.exports.storeId = function() {
+    return process.env.STORE_ID;
+}
+
 module.exports.customerToken = function() {
     return{
         authorizationToken: process.env.CUSTOMER_ACCESS_TOKEN

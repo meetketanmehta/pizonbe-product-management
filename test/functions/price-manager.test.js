@@ -12,22 +12,22 @@ const DBConnector = require('../../utils/db-connector');
 
 const lambdaWrapper = mochaPlugin.lambdaWrapper;
 
+let OPTION1 = "option1";
+let OPTION2 = "option2";
+let OPTION3 = "option3";
+let OPTION4 = "option4";
+
+let PRICE1 = 123;
+let PRICE2 = 234;
+let PRICE3 = 345;
+let PRICE4 = 456;
+
 describe('Test for add Price function', function () {
     let PriceManager;
     let stubConnectToDB;
     let stubProductPriceFindOne;
     let stubProductPriceCreate;
     let wrapped;
-
-    let OPTION1 = "option1";
-    let OPTION2 = "option2";
-    let OPTION3 = "option3";
-    let OPTION4 = "option4";
-
-    let PRICE1 = 123;
-    let PRICE2 = 234;
-    let PRICE3 = 345;
-    let PRICE4 = 456;
 
     beforeEach(function () {
         stubConnectToDB = sinon.stub(DBConnector, 'connectToDatabase');
@@ -101,5 +101,57 @@ describe('Test for add Price function', function () {
             "Added to Database"));
         const writeArgs = stubProductPriceCreate.getCall(0).args[0];
         expect(writeArgs.pricing.length).to.be.eql(3);
+    })
+});
+
+describe('Test for get Price function', function () {
+    let PriceManager;
+    let stubConnectToDB;
+    let stubProductPriceFindOne;
+    let wrapped;
+
+    beforeEach(function () {
+        stubConnectToDB = sinon.stub(DBConnector, 'connectToDatabase');
+        stubProductPriceFindOne = sinon.stub(ProductPrice, 'findOne');
+        PriceManager = require('../../functions/price-manager');
+        wrapped = lambdaWrapper.wrap(PriceManager, {handler: 'getPrice'});
+    });
+
+    afterEach(function () {
+        stubConnectToDB.restore();
+        stubProductPriceFindOne.restore();
+    });
+
+    it('Returns Access Denied if accessed by any user except store', async function () {
+        const event = {
+            headers: factory.adminToken()
+        }
+        const response = await wrapped.run(event);
+        expect(response).to.be.eql(factory.accessDeniedResponse());
+        sinon.assert.calledOnce(stubConnectToDB);
+        sinon.assert.callCount(stubProductPriceFindOne, 0);
+    });
+
+    it('Returns Product Price Document if accessed by store', async function () {
+        const expectedProductPrice = new ProductPrice(factory.productPrices([OPTION1, OPTION2],
+            [PRICE1, PRICE2], false));
+        const event = {
+            headers: factory.storeToken(),
+            pathParameters: {
+                proId:  expectedProductPrice.proId
+            }
+        };
+
+        stubProductPriceFindOne.withArgs({
+            storeId: factory.storeId(),
+            proId: expectedProductPrice.proId
+        }).returns(expectedProductPrice);
+
+        const response = await wrapped.run(event);
+
+        sinon.assert.calledOnce(stubConnectToDB);
+        sinon.assert.calledOnce(stubProductPriceFindOne);
+
+        expect(response).to.be.eql(ResponseGenerator.getResponseWithObject(200, expectedProductPrice));
     })
 });
