@@ -5,8 +5,45 @@ const ResponseGenerator = require('../utils/response-generator');
 const Product = require('../models/Product');
 const jwt = require('jsonwebtoken');
 const Validator = require('../utils/authorizer');
+const DBConnector = require('../utils/db-connector');
 
 const url =  process.env.DB_URI + "/" + process.env.DB_NAME;
+
+const getNearbyProductsPermission = ['customer'];
+const getBrandsPermission = ['customer', 'store', 'admin'];
+
+module.exports.getBrands = async function (event, context) {
+    try {
+        const connect = DBConnector.connectToDatabase();
+        const decodedUser = await jwt.verify(event.headers.authorizationToken, process.env.JWT_SECRET);
+        const hasPermission = Validator.checkIfIncludes(decodedUser, getBrandsPermission);
+        if(!hasPermission) {
+            return ResponseGenerator.getResponseWithMessage(403, "Access Denied");
+        }
+        let queryObj = {};
+        const queryStringParameters = event.queryStringParameters;
+        if(queryStringParameters) {
+            if(queryStringParameters.category)
+                queryObj['category'] = queryStringParameters.category;
+            if(queryStringParameters.subCategory)
+                queryObj['subCategory'] = queryStringParameters.subCategory;
+        }
+        const projectionObj = {
+            _id: false,
+            brand: true
+        };
+        await connect;
+        const products = await Product.find(queryObj, projectionObj);
+        if(!products)
+            return ResponseGenerator.getResponseWithObject(404, []);
+        const brands = products.map(product => product.brand);
+        const brandsFiltered = Array.from(new Set(brands));
+        return ResponseGenerator.getResponseWithObject(200, brandsFiltered);
+    } catch (err) {
+        console.error(err);
+        return ResponseGenerator.getResponseWithMessage(500, err.message);
+    }
+}
 
 module.exports.addProduct = async function (event, context) {
     try {
@@ -92,3 +129,19 @@ module.exports.getUnApprovedProducts = async function (event, context) {
         return ResponseGenerator.getResponseWithMessage(400, err.message);
     }
 }
+
+// module.exports.getNearbyProducts = async function (event, context) {
+//     try {
+//         await DBConnector.connectToDatabase();
+//         const decodedUser = await jwt.verify(event.headers.authorizationToken, process.env.JWT_SECRET);
+//         const hasPermission = Validator.checkIfIncludes(decodedUser, getNearbyProductsPermission);
+//         if(!hasPermission){
+//             return ResponseGenerator.getResponseWithMessage(400, "Access Denied");
+//         }
+//         const requestBody = JSON.parse(event.body);
+//
+//     } catch(err) {
+//         console.error(err);
+//         return ResponseGenerator.getResponseWithMessage(500, err.message);
+//     }
+// }

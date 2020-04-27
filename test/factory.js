@@ -1,4 +1,5 @@
 const ResponseGenerator = require('../utils/response-generator')
+const Product = require('../models/Product');
 
 module.exports.adminToken = function () {
     return {
@@ -43,4 +44,31 @@ module.exports.productPrices  = function (options, prices, stringify) {
 
 module.exports.accessDeniedResponse = function () {
     return ResponseGenerator.getResponseWithMessage(400, "Access Denied");
+}
+
+module.exports.products = function (request) {
+    const testProductObj = {
+        title: "Test Title",
+        description: "Test Description",
+        options: ["Test Option1", "Test Option2"],
+        storeIds: [process.env.STORE_ID],
+        category: "Test Category",
+        subCategory: "Test SubCategory",
+        brand: "Test Brand",
+        imageUri: "Test URL",
+        approval: {
+            status: "Approved",
+            approvedBy: process.env.ADMIN_ID
+        }
+    }
+    if(!request)
+        return new Product(testProductObj);
+    const key = Object.keys(request)[0];
+    const products = [];
+    request[key].forEach((value) => {
+        const product = new Product(testProductObj);
+        product[key] = value;
+        products.push(product);
+    });
+    return products;
 }

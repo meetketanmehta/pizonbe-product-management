@@ -53,6 +53,13 @@ functions:
           method: post
           cors: true
 
+  getBrands:
+    handler: functions/product-manager.getBrands
+    events:
+      - http:
+          path: brands
+          method: get
+          cors: true
   addProduct:
     handler: functions/product-manager.addProduct
     events:
