@@ -24,7 +24,7 @@ exports.getResponseWithObject = function (statusCode, values) {
 
 exports.getUnauthorizedResponse = function () {
     return {
-        statusCode: 400,
+        statusCode: 403,
         headers: {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Credentials': true

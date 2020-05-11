@@ -1,5 +1,6 @@
 const ResponseGenerator = require('../utils/response-generator')
 const Product = require('../models/Product');
+const Category = require('../models/Category');
 
 module.exports.adminToken = function () {
     return {
@@ -71,4 +72,17 @@ module.exports.products = function (request) {
         products.push(product);
     });
     return products;
+}
+
+module.exports.categories = function() {
+    return [ new Category({
+        category: "Test Category",
+        catImageUri: "Test Uri",
+        subCat: [
+            {
+                subCategory: "Test SubCategory1",
+                subCatImageUri: "Test SubCategory1Uri"
+            }
+        ]
+    }) ];
 }

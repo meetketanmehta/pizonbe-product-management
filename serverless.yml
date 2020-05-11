@@ -10,47 +10,26 @@ provider:
   environment:
     DB_URI: ${self:custom.secrets.DB_URI}
     DB_NAME: ${self:custom.secrets.DB_NAME}
-    DB_COLL_CATEGORY: ${self:custom.secrets.DB_COLL_CATEGORY}
+    DB_CATEGORIES_COLLECTION: ${self:custom.secrets.DB_CATEGORIES_COLLECTION}
     DB_PRODUCTS_COLLECTION: ${self:custom.secrets.DB_PRODUCTS_COLLECTION}
     DB_PRODUCTS_PRICE_COLLECTION: ${self:custom.secrets.DB_PRODUCTS_PRICE_COLLECTION}
     JWT_SECRET: ${self:custom.secrets.JWT_SECRET}
 
 
 functions:
-  getAllCategories:
-    handler: functions/category-manager.getAllCategories
+  getCategories:
+    handler: functions/category-manager.getCategories
     events:
       - http:
-          path: getAllCategories
+          path: categories
           method: get
           cors: true
-  getAllDB:
-    handler: functions/category-manager.getAllDB
+  getSubCategories:
+    handler: functions/category-manager.getSubCategories
     events:
       - http:
-          path: getAllDB
+          path: subCategories
           method: get
-          cors: true
-  getSubCategory:
-    handler: functions/category-manager.getSubCategory
-    events:
-      - http:
-          path: getSubCategory/{category}
-          method: get
-          cors: true
-  addSubCategory:
-    handler: functions/category-manager.addSubCategory
-    events:
-      - http:
-          path: addSubCategory
-          method: post
-          cors: true
-  addCategory:
-    handler: functions/category-manager.addCategory
-    events:
-      - http:
-          path: addCategory
-          method: post
           cors: true
 
   getBrands:
